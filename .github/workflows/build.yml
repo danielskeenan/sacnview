@@ -26,9 +26,9 @@ jobs:
     - name: Linux Environment Setup - install python3
       run:  sudo apt-get install python3-pip --yes
     - name: Install QT 5.15.x - part 1
-      run: sudo apt-get install qt5-default qt5-qmake qt515base qt515tools  -y
+      run: sudo apt-get install qt515base qt515multimedia qt515tools mesa-common-dev libgl1-mesa-dev libpcap-dev -y
     - name: Install QT 5.15.x - part 2
-      run: sudo /opt/qt515/bin/./qt515-env.sh
+      run: source /opt/qt*/bin/qt*-env.sh
     - name: Create Makefile
       run:  |
         qtchooser -list-versions
@@ -51,7 +51,7 @@ jobs:
     - name: checkout
       uses: actions/checkout@v2
     - name: Install Qt
-      uses: jurplel/install-qt-action@v2.8.0
+      uses: jurplel/install-qt-action@v2.14.0
       with:
         version: '5.15.2'
     - name: Create Makefile
@@ -75,7 +75,7 @@ jobs:
     - name: QT Environment Setup
       run:  |
         brew install qt5 qwt sfml
-        brew link qt5 --force
+        brew link qt5 --overwrite --force
     - name: Create Makefile
       run: qmake sACNView.pro
     - name: Run MakeFile
