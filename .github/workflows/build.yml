@@ -13,6 +13,7 @@ on:
 
 jobs:
   build_linux:
+  # Ubuntu Bionic
     runs-on: ubuntu-18.04
 
     steps:
@@ -21,18 +22,18 @@ jobs:
     - name: Linux Environment Setup - install software-properties-common - ppa pre-req
       run: sudo apt-get install software-properties-common -y -qq 
     - name: Linux Environment Setup - install qt ppa
-      run: sudo add-apt-repository ppa:beineri/opt-qt-5.12.0-bionic -y && sudo apt-get update -y
+      run: sudo add-apt-repository ppa:beineri/opt-qt-5.15.2-bionic -y && sudo apt-get update -y
     - name: Linux Environment Setup - install python3
       run:  sudo apt-get install python3-pip --yes
-    - name: Install QT 5.12.x - part 1
-      run: sudo apt-get install qt5-default qt5-qmake qt512base qt512tools libqwt-qt5-6 qt512serialport qt512svg qt512multimedia qt512connectivity qt512webengine libqt5webkit5-dev qt512charts-no-lgpl qt512networkauth-no-lgpl qt512translations qtdeclarative5-dev-tools libqwt-qt5-dev qtwebengine5-dev vlc libvlc-dev libvlccore-dev libsfml-dev libusb-1.0-0-dev -y
-    - name: Install QT 5.12.x - part 2
-      run: sudo /opt/qt512/bin/./qt512-env.sh
+    - name: Install QT 5.15.x - part 1
+      run: sudo apt-get install qt5-default qt5-qmake qt515base qt515tools  -y
+    - name: Install QT 5.15.x - part 2
+      run: sudo /opt/qt515/bin/./qt515-env.sh
     - name: Create Makefile
       run:  |
         qtchooser -list-versions
         qmake -version
-        qmake PowerVelo.pro
+        qmake sACNView.pro
     - name: Run MakeFile
       run: make
     - name: upload artifact
@@ -51,7 +52,8 @@ jobs:
       uses: actions/checkout@v2
     - name: Install Qt
       uses: jurplel/install-qt-action@v2.8.0
-
+      with:
+        version: '5.15.2'
     - name: Create Makefile
       run: 
         qmake sACNView.pro
@@ -74,11 +76,6 @@ jobs:
       run:  |
         brew install qt5 qwt sfml
         brew link qt5 --force
-        curl -L -o /tmp/VLC-Qt_1.1.0_macos.7z  https://github.com/vlc-qt/vlc-qt/releases/download/1.1.0/VLC-Qt_1.1.0_macos.7z
-        mkdir -p /usr/local/opt/vlc-qt
-        7z x -o/usr/local/opt/vlc-qt /tmp/VLC-Qt_1.1.0_macos.7z
-        ln -sf /usr/local/opt/vlc-qt/lib/VLCQtCore.framework/Headers /usr/local/include/VLCQtCore
-        ln -sf /usr/local/opt/vlc-qt/lib/VLCQtWidgets.framework/Headers /usr/local/include/VLCQtWidgets
     - name: Create Makefile
       run: qmake sACNView.pro
     - name: Run MakeFile
