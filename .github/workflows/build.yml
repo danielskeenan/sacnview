@@ -25,14 +25,14 @@ jobs:
       run: sudo add-apt-repository ppa:beineri/opt-qt-5.15.2-bionic -y && sudo apt-get update -y
     - name: Linux Environment Setup - install python3
       run:  sudo apt-get install python3-pip --yes
-    - name: Install QT 5.15.x - part 1
-      run: sudo apt-get install qt515base qt515multimedia qt515tools mesa-common-dev libgl1-mesa-dev libpcap-dev -y
-    - name: Install QT 5.15.x - part 2
-      run: source /opt/qt*/bin/qt*-env.sh
+    - name: Install Extra Packages
+      run: sudo apt-get install mesa-common-dev libgl1-mesa-dev libpcap-dev -y
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v2.14.0
+      with:
+        version: '5.15.2'
     - name: Create Makefile
-      run:  |
-        qtchooser -list-versions
-        qmake -version
+      run:
         qmake sACNView.pro
     - name: Run MakeFile
       run: make
@@ -58,7 +58,7 @@ jobs:
       run: 
         qmake sACNView.pro
     - name: Run MakeFile
-      run: make
+      run: nmake
     - name: upload artifact
       uses: actions/upload-artifact@v2
       with:
