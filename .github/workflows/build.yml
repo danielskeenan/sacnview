@@ -58,7 +58,7 @@ jobs:
         version: '5.15.2'
     # Parts of the breakpad install (gclient) need Python 2
     - name: Install Python2
-    - uses: actions/setup-python@v2
+      uses: actions/setup-python@v2
       with:
         python-version: '2.x'
     - name: Create Makefile
