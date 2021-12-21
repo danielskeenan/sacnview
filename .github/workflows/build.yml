@@ -17,8 +17,6 @@ jobs:
     runs-on: ubuntu-18.04
 
     steps:
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v3
     - name: Checkout
       uses: actions/checkout@v2
       with:
@@ -38,6 +36,9 @@ jobs:
         qmake sACNView.pro
     - name: Run MakeFile
       run: make
+    - name: Setup tmate session
+      if: ${{ failure() }}
+      uses: mxschmitt/action-tmate@v3
     - name: upload artifact
       uses: actions/upload-artifact@v2
       with:
@@ -48,8 +49,6 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v3
     - name: MSVC Environment Setup
       uses: ilammy/msvc-dev-cmd@v1
     - name: Checkout
@@ -70,6 +69,9 @@ jobs:
         qmake sACNView.pro
     - name: Run MakeFile
       run: nmake
+    - name: Setup tmate session
+      if: ${{ failure() }}
+      uses: mxschmitt/action-tmate@v3
     - name: upload artifact
       uses: actions/upload-artifact@v2
       with:
@@ -81,8 +83,6 @@ jobs:
     runs-on: macos-latest
 
     steps:    
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v3
     - name: Checkout
       uses: actions/checkout@v2
       with:
@@ -93,6 +93,9 @@ jobs:
       run: qmake sACNView.pro
     - name: Run MakeFile
       run: make
+    - name: Setup tmate session
+      if: ${{ failure() }}
+      uses: mxschmitt/action-tmate@v3
     - name: upload artifact
       uses: actions/upload-artifact@v1
       with:
