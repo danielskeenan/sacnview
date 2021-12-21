@@ -15,6 +15,7 @@ linux {
     system(cd $$shell_quote($${BREAKPAD_PATH}/src) && ./configure && make)
 
     LIBS += -L$${BREAKPAD_PATH}/src/src/client/linux -lbreakpad_client
+    INCLUDEPATH  += {BREAKPAD_PATH}/src/src/
 
     HEADERS += src/crash_handler.h \
         src/ui/crash_test.h

@@ -45,7 +45,7 @@ win32 {
         COPIES += LocalDeployPCap
     }
 
-    DEPLOY_COMMAND = $$shell_quote($$system_path($$(QTDIR)/bin/windeployqt))
+    DEPLOY_COMMAND = $$shell_quote($$system_path($$(Qt5_DIR)/bin/windeployqt))
     DEPLOY_OPT = --no-angle --no-opengl-sw --dir $${DEPLOY_DIR}
 
     DEPLOY_INSTALLER = makensis /DPRODUCT_VERSION="$${PRODUCT_VERSION}" /DTARGET_WINXP="$${TARGET_WINXP}" $$shell_quote($$system_path($${_PRO_FILE_PWD_}/install/win/install.nsi))
@@ -58,7 +58,8 @@ macx {
 
     DEPLOY_COMMAND = macdeployqt
 
-    DEPLOY_CLEANUP = codesign --force --deep --verify --verbose --sign \"Thomas Steer\" $${DEPLOY_TARGET} $$escape_expand(\\n\\t)
+    # Skip while working on github runner
+    # DEPLOY_CLEANUP = codesign --force --deep --verify --verbose --sign \"Thomas Steer\" $${DEPLOY_TARGET} $$escape_expand(\\n\\t)
     DEPLOY_CLEANUP += $${QMAKE_DEL_FILE} $${DEPLOY_DIR}/sACNView*.dmg
 
     DEPLOY_INSTALLER = create-dmg --volname "sACNView_Installer" --volicon "$${_PRO_FILE_PWD_}/res/icon.icns"
