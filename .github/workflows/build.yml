@@ -17,7 +17,9 @@ jobs:
     runs-on: ubuntu-18.04
 
     steps:
-    - name: checkout
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
+    - name: Checkout
       uses: actions/checkout@v2
       with:
         submodules: recursive
@@ -46,9 +48,11 @@ jobs:
     runs-on: windows-latest
 
     steps:
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
     - name: MSVC Environment Setup
       uses: ilammy/msvc-dev-cmd@v1
-    - name: checkout
+    - name: Checkout
       uses: actions/checkout@v2
       with:
         submodules: recursive
@@ -76,8 +80,10 @@ jobs:
   build_mac:
     runs-on: macos-latest
 
-    steps:
-    - name: checkout
+    steps:    
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
+    - name: Checkout
       uses: actions/checkout@v2
       with:
         submodules: recursive
