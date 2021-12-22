@@ -27,6 +27,8 @@ jobs:
       run:  sudo apt-get install python3-pip --yes
     - name: Install Extra Packages
       run: sudo apt-get install mesa-common-dev libgl1-mesa-dev libpcap-dev libgstreamer-plugins-base1.0-0 -y
+    - name: Install FPM
+      run: sudo gem install --no-document fpm
     - name: Install Qt
       uses: jurplel/install-qt-action@v2.14.0
       with:
@@ -59,11 +61,6 @@ jobs:
       uses: jurplel/install-qt-action@v2.14.0
       with:
         version: '5.15.2'
-    # Parts of the breakpad install (gclient) need Python 2
-    - name: Install Python2
-      uses: actions/setup-python@v2
-      with:
-        python-version: '2.x'
     - name: Create Makefile
       run: 
         qmake sACNView.pro
@@ -99,7 +96,7 @@ jobs:
       if: ${{ failure() }}
       uses: mxschmitt/action-tmate@v3
     - name: upload artifact
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       with:
         name: macos
         path: install/mac/sACNView*.dmg 
