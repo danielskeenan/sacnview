@@ -69,14 +69,14 @@ jobs:
       run: qmake sACNView.pro
     - name: Run MakeFile
       run: nmake
-    - name: Setup TMate Session (Failure Only)
-      if: ${{ failure() }}
-      uses: mxschmitt/action-tmate@v3
-    - name: upload artifact
+    - name: Upload Artifact
       uses: actions/upload-artifact@v2
       with:
         name: windows
         path: install\win\sACNView*.exe 
+    - name: Setup TMate Session (Failure Only)
+      # if: ${{ failure() }}
+      uses: mxschmitt/action-tmate@v3
 
 
   build_mac:
@@ -98,7 +98,7 @@ jobs:
     - name: Setup TMate Session (Failure Only)
       if: ${{ failure() }}
       uses: mxschmitt/action-tmate@v3
-    - name: Apload Artifact
+    - name: Upload Artifact
       uses: actions/upload-artifact@v2
       with:
         name: macos
