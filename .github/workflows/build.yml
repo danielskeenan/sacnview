@@ -26,7 +26,7 @@ jobs:
     - name: Linux Environment Setup - install python3
       run:  sudo apt-get install python3-pip --yes
     - name: Install Extra Packages
-      run: sudo apt-get install mesa-common-dev libgl1-mesa-dev libpcap-dev -y
+      run: sudo apt-get install mesa-common-dev libgl1-mesa-dev libpcap-dev libgstreamer-plugins-base1.0-0 -y
     - name: Install Qt
       uses: jurplel/install-qt-action@v2.14.0
       with:
@@ -43,7 +43,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: linux
-        path: build/
+        path: sACNView*.AppImage
 
   build_windows:
     runs-on: windows-latest
@@ -89,6 +89,8 @@ jobs:
         submodules: recursive
     - name: Install Qt
       uses: jurplel/install-qt-action@v2.14.0
+    - name: Install create-dmg
+      run: brew install create-dmg
     - name: Create Makefile
       run: qmake sACNView.pro
     - name: Run MakeFile
@@ -100,4 +102,4 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: macos
-        path: build/ 
+        path: install/mac/sACNView*.dmg 
