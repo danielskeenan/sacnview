@@ -1,3 +1,5 @@
+# Github Actions configuration file
+# Runs the build on Linux, Windows and MacOS
 name: Build
 
 on:
@@ -21,10 +23,6 @@ jobs:
       uses: actions/checkout@v2
       with:
         submodules: recursive
-    - name: Linux Environment Setup - install software-properties-common - ppa pre-req
-      run: sudo apt-get install software-properties-common -y -qq 
-    - name: Linux Environment Setup - install python3
-      run:  sudo apt-get install python3-pip --yes
     - name: Install Extra Packages
       run: sudo apt-get install mesa-common-dev libgl1-mesa-dev libpcap-dev libgstreamer-plugins-base1.0-0 -y
     - name: Install FPM
@@ -38,10 +36,10 @@ jobs:
         qmake sACNView.pro
     - name: Run MakeFile
       run: make
-    - name: Setup tmate session
+    - name: Setup TMate Session (Failure Only)
       if: ${{ failure() }}
       uses: mxschmitt/action-tmate@v3
-    - name: upload artifact
+    - name: Upload Artifact
       uses: actions/upload-artifact@v2
       with:
         name: linux
@@ -71,14 +69,14 @@ jobs:
       run: qmake sACNView.pro
     - name: Run MakeFile
       run: nmake
-    - name: Setup tmate session
+    - name: Setup TMate Session (Failure Only)
       if: ${{ failure() }}
       uses: mxschmitt/action-tmate@v3
     - name: upload artifact
       uses: actions/upload-artifact@v2
       with:
         name: windows
-        path: build\ 
+        path: install\win\sACNView*.exe 
 
 
   build_mac:
@@ -97,10 +95,10 @@ jobs:
       run: qmake sACNView.pro
     - name: Run MakeFile
       run: make
-    - name: Setup tmate session
+    - name: Setup TMate Session (Failure Only)
       if: ${{ failure() }}
       uses: mxschmitt/action-tmate@v3
-    - name: upload artifact
+    - name: Apload Artifact
       uses: actions/upload-artifact@v2
       with:
         name: macos
