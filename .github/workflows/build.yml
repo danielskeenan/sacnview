@@ -61,9 +61,13 @@ jobs:
       uses: jurplel/install-qt-action@v2.14.0
       with:
         version: '5.15.2'
+    - name: Download NSIS SimpleFC Plugin
+      with:
+        url: "http://nsis.sourceforge.net/mediawiki/images/d/d7/NSIS_Simple_Firewall_Plugin_1.20.zip"
+    - name: Install NSIS SimpleFC Plugin
+      run: 7z e NSIS_Simple_Firewall_Plugin_1.20.zip -o"C:\Program Files (x86)\NSIS\Plugins\x86-ansi" SimpleFC.dll
     - name: Create Makefile
-      run: 
-        qmake sACNView.pro
+      run: qmake sACNView.pro
     - name: Run MakeFile
       run: nmake
     - name: Setup tmate session
