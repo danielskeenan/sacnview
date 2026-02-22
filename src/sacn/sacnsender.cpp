@@ -203,6 +203,18 @@ void sACNSentUniverse::setLevel(const quint8 * data, int len, int start)
     }
 }
 
+void sACNSentUniverse::setLevel(const QByteArray &data)
+{
+    if (isSending())
+    {
+        if (memcmp(data.data(), m_slotData, static_cast<size_t>(data.length())) != 0)
+        {
+            memcpy(m_slotData, data.data(), static_cast<size_t>(data.length()));
+            CStreamServer::getInstance()->SetUniverseDirty(m_handle);
+        }
+    }
+}
+
 void sACNSentUniverse::setVerticalBar(quint16 index, quint8 level)
 {
     Q_ASSERT(index < 32);

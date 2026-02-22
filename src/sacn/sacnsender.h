@@ -59,6 +59,11 @@ public slots:
      */
     void setLevel(const quint8 * data, int len, int start = 0);
     /**
+     * @brief setLevel sets a level range
+     * @param data - QByteArray of levels
+     */
+    void setLevel(const QByteArray& data);
+    /**
      * @brief sets a vertical bar on a 16x32 grid for the universe
      */
     void setVerticalBar(quint16 index, quint8 level);
