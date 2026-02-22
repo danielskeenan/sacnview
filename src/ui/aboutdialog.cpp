@@ -63,7 +63,7 @@ aboutDialog::aboutDialog(QWidget * parent)
 
     // Thanks
     ui->lblThanks->setText(
-        tr("<p>The macos version of sACNView is provided<br/>with with the support of <a "
+        tr("<p>The macos version of sACNView is provided<br/> with the support of <a "
            "href=\"https://www.carallon.com\">Carallon</a>."));
 
     // Libs
