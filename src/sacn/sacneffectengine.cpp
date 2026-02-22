@@ -284,13 +284,32 @@ void sACNEffectEngine::setRate(qreal hz)
 
 void sACNEffectEngine::timerTick()
 {
-    m_index++;
     char line[32];
+
+    // Returns true if the tracked value should be incremented
+    const auto checkDwellTime = [this](quint8 value, quint8 holdValue) {
+        if (m_dwellTime == 0) return true;
+
+        if (value == holdValue)
+        {
+            if (m_dwellTimeTracker.elapsed() >= m_dwellTime * 1000)
+            {
+                m_dwellTimeTracker.restart();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        m_dwellTimeTracker.restart();
+        return true;
+        };
 
     switch (m_mode)
     {
         case FxRamp:
-            m_data++;
+            if (checkDwellTime(m_data, 255)) m_data++;
             QMetaObject::invokeMethod(
                 m_sender,
                 "setLevelRange",
@@ -300,7 +319,7 @@ void sACNEffectEngine::timerTick()
             emit fxLevelChange(m_data);
             break;
         case FxInverseRamp:
-            m_data--;
+            if(checkDwellTime(m_data, 255)) m_data--;
             QMetaObject::invokeMethod(
                 m_sender,
                 "setLevelRange",
@@ -310,8 +329,12 @@ void sACNEffectEngine::timerTick()
             emit fxLevelChange(m_data);
             break;
         case FxSinewave:
-            if (m_index >= sizeof(sinetable)) m_index = 0;
-            m_data = sinetable[m_index];
+            if (checkDwellTime(m_data, 255))
+            {
+                m_index++;
+                if (m_index >= sizeof(sinetable)) m_index = 0;
+                m_data = sinetable[m_index];
+            }
             QMetaObject::invokeMethod(
                 m_sender,
                 "setLevelRange",
@@ -321,68 +344,72 @@ void sACNEffectEngine::timerTick()
             emit fxLevelChange(m_data);
             break;
         case FxChaseSnap:
-            QMetaObject::invokeMethod(
-                m_sender,
-                "setLevelRange",
-                Q_ARG(quint16, m_start),
-                Q_ARG(quint16, m_end),
-                Q_ARG(quint8, 0));
-            QMetaObject::invokeMethod(
-                m_sender,
-                "setLevel",
-                Q_ARG(quint16, m_index_chase),
-                Q_ARG(quint8, m_manualLevel));
+            if (checkDwellTime(m_index_chase, m_index_chase))
+            {
+                if (m_index_chase < m_start) m_index_chase = m_start;
+                if (++m_index_chase > m_end) m_index_chase = m_start;
 
-            if (m_index_chase < m_start) m_index_chase = m_start;
-
-            if (++m_index_chase > m_end) m_index_chase = m_start;
-
+                QMetaObject::invokeMethod(
+                    m_sender,
+                    "setLevelRange",
+                    Q_ARG(quint16, m_start),
+                    Q_ARG(quint16, m_end),
+                    Q_ARG(quint8, 0));
+                QMetaObject::invokeMethod(
+                    m_sender,
+                    "setLevel",
+                    Q_ARG(quint16, m_index_chase),
+                    Q_ARG(quint8, m_manualLevel));
+            }
             break;
 
         case FxChaseRamp:
-            if (m_index > std::numeric_limits<decltype(m_data)>::max())
+        {
+            if (m_data < 255)
             {
-                m_index = std::numeric_limits<decltype(m_data)>::min();
+                m_data++;
+                m_dwellTimeTracker.restart();
+            }
+            else if(checkDwellTime(m_data, 255))
+            {
+                m_data++;
                 if (++m_index_chase > m_end) m_index_chase = m_start;
+                if (m_index_chase < m_start) m_index_chase = m_start;
             }
 
-            if (m_index_chase < m_start) m_index_chase = m_start;
-
-            m_data = m_index;
-
+            auto levels = QByteArray(512, 0);
+            levels[m_index_chase] = m_data;
             QMetaObject::invokeMethod(
-                m_sender,
-                "setLevelRange",
-                Q_ARG(quint16, m_start),
-                Q_ARG(quint16, m_end),
-                Q_ARG(quint8, 0));
-            QMetaObject::invokeMethod(m_sender, "setLevel", Q_ARG(quint16, m_index_chase), Q_ARG(quint8, m_data));
+                    m_sender,
+                    "setLevel",
+                    Q_ARG(QByteArray, levels));
             emit fxLevelChange(m_data);
 
             break;
-
+        }
         case FxChaseSine:
-            if (m_index >= sizeof(sinetable))
+        {
+            if (checkDwellTime(m_data, 255))
             {
-                m_index = 0;
-                if (++m_index_chase > m_end) m_index_chase = m_start;
+                m_index++;
+                if (m_index >= sizeof(sinetable))
+                {
+                    m_index = 0;
+                    if (++m_index_chase > m_end) m_index_chase = m_start;
+                    if (m_index_chase < m_start) m_index_chase = m_start;
+                }
+                m_data = sinetable[m_index];
             }
-
-            if (m_index_chase < m_start) m_index_chase = m_start;
-
-            m_data = sinetable[m_index];
-
+            auto levels = QByteArray(512, 0);
+            levels[m_index_chase] = m_data;
             QMetaObject::invokeMethod(
                 m_sender,
-                "setLevelRange",
-                Q_ARG(quint16, m_start),
-                Q_ARG(quint16, m_end),
-                Q_ARG(quint8, 0));
-            QMetaObject::invokeMethod(m_sender, "setLevel", Q_ARG(quint16, m_index_chase), Q_ARG(quint8, m_data));
+                "setLevel",
+                Q_ARG(QByteArray, levels));
             emit fxLevelChange(m_data);
 
             break;
-
+        }
         case FxManual:
             QMetaObject::invokeMethod(
                 m_sender,
@@ -394,7 +421,7 @@ void sACNEffectEngine::timerTick()
         case FxText:
             if (m_image)
             {
-                if (m_index > m_imageWidth) m_index = 0;
+                if (++m_index > m_imageWidth) m_index = 0;
 
                 for (int i = 0; i < 16; i++)
                 {
@@ -427,11 +454,11 @@ void sACNEffectEngine::timerTick()
             }
             break;
         case FxVerticalBar:
-            if (m_index > 31) m_index = 0;
+            if (++m_index > 31) m_index = 0;
             QMetaObject::invokeMethod(m_sender, "setVerticalBar", Q_ARG(quint16, m_index), Q_ARG(quint8, 255));
             break;
         case FxHorizontalBar:
-            if (m_index > 15) m_index = 0;
+            if (++m_index > 15) m_index = 0;
             QMetaObject::invokeMethod(m_sender, "setHorizontalBar", Q_ARG(quint16, m_index), Q_ARG(quint8, 255));
             break;
     }
@@ -455,4 +482,10 @@ void sACNEffectEngine::setManualLevel(int level)
 void sACNEffectEngine::slotCountChanged()
 {
     setEndAddress(m_end);
+}
+
+void sACNEffectEngine::setDwellTime(quint16 seconds)
+{
+    m_dwellTime = seconds;
+    m_dwellTimeTracker.restart();
 }

@@ -94,6 +94,7 @@ public slots:
     void setDateStyle(sACNEffectEngine::DateStyle style);
 
     void setRate(qreal hz);
+    void setDwellTime(quint16 seconds);
 
     void setManualLevel(int level);
 
@@ -119,6 +120,8 @@ private:
     QImage m_renderedImage;
     quint8 * m_image;
     size_t m_imageWidth;
+    quint16 m_dwellTime = 0;
+    QElapsedTimer m_dwellTimeTracker;
 
     // Render a single line of variable width text
     void renderText(QString text);
