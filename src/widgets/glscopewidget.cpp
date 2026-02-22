@@ -552,7 +552,13 @@ ScopeModel::ScopeModel(QObject * parent)
     connect(this, &ScopeModel::queueTriggered, this, &ScopeModel::onQueueTriggered, Qt::QueuedConnection);
 }
 
-ScopeModel::~ScopeModel() {}
+ScopeModel::~ScopeModel()
+{
+    for (auto& listener : m_listeners)
+    {
+        listener->removeDirectCallback(this);
+    }
+}
 
 QVariant ScopeModel::headerData(int section, Qt::Orientation orientation, int role) const
 {

@@ -70,6 +70,12 @@ transmitwindow::transmitwindow(int universe, QWidget * parent)
     ui->dlFadeRate->setMinimum(0);
     ui->dlFadeRate->setMaximum(static_cast<int>(FX_FADE_RATES.count() - 1));
     ui->dlFadeRate->setValue(0);
+    on_dlFadeRate_valueChanged(0);
+
+    ui->dlDwellTime->setMinimum(0);
+    ui->dlDwellTime->setMaximum(static_cast<int>(FX_DWELL_TIMES.count() - 1));
+    ui->dlDwellTime->setValue(0);
+    on_dlDwellTime_valueChanged(0);
 
     ui->tabWidget->setCurrentIndex(0);
 
@@ -683,6 +689,14 @@ void transmitwindow::on_dlFadeRate_valueChanged(int value)
     ui->lblFadeSpeed->setText(tr("Fade Rate %1 Hz").arg(rate));
 
     if (m_fxEngine) m_fxEngine->setRate(rate);
+}
+
+void transmitwindow::on_dlDwellTime_valueChanged(int value)
+{
+    const auto dwell = FX_DWELL_TIMES[value];
+    ui->lblFadeDwell->setText(tr("Dwell Time %1s").arg(dwell));
+
+    if (m_fxEngine) m_fxEngine->setDwellTime(dwell);
 }
 
 void transmitwindow::on_sbFadeRangeStart_valueChanged(int value)
