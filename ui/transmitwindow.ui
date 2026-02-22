@@ -575,7 +575,7 @@ border-radius: 4px;
        <enum>Qt::FocusPolicy::NoFocus</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tabFaders">
        <attribute name="title">
@@ -1303,6 +1303,75 @@ color: rgb(255, 85, 0);</string>
          </widget>
         </item>
         <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_10">
+          <item>
+           <widget class="QLabel" name="label_11">
+            <property name="text">
+             <string>Offset</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="sbOffset">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="minimum">
+             <number>1</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_10">
+            <property name="text">
+             <string>Grouping</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="sbGrouping">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="minimum">
+             <number>1</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Orientation::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
          <layout class="QHBoxLayout" name="horizontalLayout_4">
           <item>
            <widget class="QPushButton" name="btnCcPrev">
@@ -2001,6 +2070,27 @@ color: rgb(255, 85, 0);</string>
    <header>commandline.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>rbPathwaySecure</tabstop>
+  <tabstop>lePathwaySecurePassword</tabstop>
+  <tabstop>sbSlotCount</tabstop>
+  <tabstop>sbMinFPS</tabstop>
+  <tabstop>sbMaxFPS</tabstop>
+  <tabstop>teCommandline</tabstop>
+  <tabstop>lcdNumber</tabstop>
+  <tabstop>sbOffset</tabstop>
+  <tabstop>sbGrouping</tabstop>
+  <tabstop>cbCcPap</tabstop>
+  <tabstop>cbFadeRangePap</tabstop>
+  <tabstop>rbChaseSnap</tabstop>
+  <tabstop>rbChaseSine</tabstop>
+  <tabstop>rbChaseRamp</tabstop>
+  <tabstop>rbVerticalBars</tabstop>
+  <tabstop>rbHorizBars</tabstop>
+  <tabstop>rbUsDate</tabstop>
+  <tabstop>leScrollText</tabstop>
+  <tabstop>rbEuDate</tabstop>
+ </tabstops>
  <resources>
   <include location="../res/resources.qrc"/>
  </resources>

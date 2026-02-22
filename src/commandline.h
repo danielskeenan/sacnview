@@ -140,9 +140,18 @@ signals:
     void valueChanged(int);
     void toggleOff();
 
-protected:
+public slots:
+    void increment();
+    void decrement();
+    void setOffset(int offset);
 
+protected:
     virtual void keyPressEvent(QKeyEvent * event);
+    virtual void focusInEvent(QFocusEvent* event);
+    virtual void focusOutEvent(QFocusEvent* event);
+
+private:
+    int m_offset = 1;
 };
 
 #endif // COMMANDLINE_H
