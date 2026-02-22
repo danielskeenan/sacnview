@@ -329,6 +329,8 @@ else()
 endif()
 
 if(APPLE)
+    # Macos universal binary
+    set(CMAKE_OSX_ARCHITECTURES arm64 x86_64)
     # Apple version must be in M.m.p format for app store distribution
     if(${GIT_TAG} MATCHES [[([0-9]*\.[0-9]*\.[0-9]*)]])
         message(STATUS "Apple version ${CMAKE_MATCH_1}")
