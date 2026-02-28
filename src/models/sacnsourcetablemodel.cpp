@@ -22,17 +22,9 @@
 
 #include "color_helpers.h"
 
-std::array<QColor, 2> SACNSourceTableModel::POSSIBLE_FG_COLORS{};
-
 SACNSourceTableModel::SACNSourceTableModel(QObject * parent)
     : QAbstractTableModel(parent)
 {
-    // Init possible foreground colors from the application palette.
-    if (!POSSIBLE_FG_COLORS.front().isValid())
-    {
-        const QPalette palette = qApp->palette();
-        POSSIBLE_FG_COLORS = {palette.color(QPalette::Text), palette.color(QPalette::BrightText)};
-    }
 }
 
 SACNSourceTableModel::~SACNSourceTableModel() {}
@@ -244,7 +236,7 @@ QVariant SACNSourceTableModel::getForegroundData(const RowData & rowData, int co
     const QColor bgColor = bgData.value<QColor>();
     if (bgColor.isValid())
     {
-        return findBestContrastingColor(bgColor, POSSIBLE_FG_COLORS.cbegin(), POSSIBLE_FG_COLORS.cend());
+        return findBestContrastingColor(bgColor);
     }
 
     return QVariant();

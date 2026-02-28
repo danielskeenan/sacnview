@@ -48,4 +48,10 @@ QColor findBestContrastingColor(const QColor & bgColor, FgColorIt begin, FgColor
     return std::get<0>(best);
 }
 
+/**
+ * Find the which of the application palette's text colors best contrasts with @p bgColor.
+ * @param bgColor Background color
+ */
+QColor findBestContrastingColor(const QColor & bgColor);
+
 #endif //SRC_COLOR_HELPERS_H

@@ -1,4 +1,6 @@
 #include "color_helpers.h"
+#include <QApplication>
+#include <QPalette>
 
 double calcLuminance(const QColor & color)
 {
@@ -14,4 +16,10 @@ double calcContrastRatio(const QColor & color1, const QColor & color2)
     const double darker = std::min(luminance1, luminance2);
     // https://w3c.github.io/wcag/guidelines/22/#dfn-contrast-ratio
     return (lighter + 0.05) / (darker + 0.05);
+}
+QColor findBestContrastingColor(const QColor & bgColor)
+{
+    const QPalette palette = qApp->palette();
+    const std::array fgColors = {palette.color(QPalette::Text), palette.color(QPalette::BrightText)};
+    return findBestContrastingColor(bgColor, fgColors.cbegin(), fgColors.cend());
 }

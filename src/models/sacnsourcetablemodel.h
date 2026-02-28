@@ -161,8 +161,6 @@ private:
         void Update(const sACNSource * source);
     };
 
-    static std::array<QColor, 2> POSSIBLE_FG_COLORS;
-
     std::vector<RowData> m_rows;
     std::vector<sACNManager::wListener> m_listeners;
     // Notes by CID as provided by SACNView user
