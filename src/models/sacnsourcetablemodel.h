@@ -161,6 +161,8 @@ private:
         void Update(const sACNSource * source);
     };
 
+    static std::array<QColor, 2> POSSIBLE_FG_COLORS;
+
     std::vector<RowData> m_rows;
     std::vector<sACNManager::wListener> m_listeners;
     // Notes by CID as provided by SACNView user
@@ -176,6 +178,7 @@ private:
     // Data
     QVariant getDisplayData(const RowData & rowData, int column) const;
     QVariant getBackgroundData(const RowData & rowData, int column) const;
+    QVariant getForegroundData(const RowData & rowData, int column) const;
     QVariant getTimingSummary(const RowData & rowData, int column) const;
 
     void RefreshAllTimingData();
