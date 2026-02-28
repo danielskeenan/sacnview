@@ -17,6 +17,7 @@ double calcContrastRatio(const QColor & color1, const QColor & color2)
     // https://w3c.github.io/wcag/guidelines/22/#dfn-contrast-ratio
     return (lighter + 0.05) / (darker + 0.05);
 }
+
 QColor findBestContrastingColor(const QColor & bgColor)
 {
     const QPalette palette = qApp->palette();

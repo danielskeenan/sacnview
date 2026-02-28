@@ -1,5 +1,5 @@
-#ifndef SRC_COLOR_HELPERS_H
-#define SRC_COLOR_HELPERS_H
+#ifndef COLOR_HELPERS_H
+#define COLOR_HELPERS_H
 
 #include <QColor>
 
@@ -54,4 +54,4 @@ QColor findBestContrastingColor(const QColor & bgColor, FgColorIt begin, FgColor
  */
 QColor findBestContrastingColor(const QColor & bgColor);
 
-#endif //SRC_COLOR_HELPERS_H
+#endif //COLOR_HELPERS_H
