@@ -60,6 +60,7 @@ protected slots:
     void on_tabWidget_currentChanged(int index);
     void on_slChannelCheck_valueChanged(int value);
     void on_btnCcBlink_pressed();
+    void on_sbGrouping_valueChanged(int value);
     void on_dlFadeRate_valueChanged(int value);
     void on_dlDwellTime_valueChanged(int value);
     void doBlink();

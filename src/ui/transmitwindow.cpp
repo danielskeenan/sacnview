@@ -591,9 +591,8 @@ void transmitwindow::on_btnCcBlink_pressed()
     if (m_blinkTimer->isActive())
     {
         m_blinkTimer->stop();
-        int address = ui->lcdNumber->value();
         ui->blinkIndicator->setPixmap(QPixmap());
-        if (m_sender) m_sender->setLevel(address - 1, ui->slChannelCheck->value());
+        updateChanCheckLevel(ui->lcdNumber->intValue(), ui->sbGrouping->value(), ui->slChannelCheck->value());
     }
     else
     {
@@ -605,10 +604,13 @@ void transmitwindow::on_btnCcBlink_pressed()
     ui->btnCcBlink->setFont(font);
 }
 
+void transmitwindow::on_sbGrouping_valueChanged(int value)
+{
+    updateChanCheckLevel(ui->lcdNumber->intValue(), value, ui->slChannelCheck->value());
+}
+
 void transmitwindow::doBlink()
 {
-    int address = ui->lcdNumber->value();
-    const auto grouping = ui->sbGrouping->value();
     m_blink = !m_blink;
 
     quint8 level;
@@ -622,7 +624,7 @@ void transmitwindow::doBlink()
         ui->blinkIndicator->setPixmap(QPixmap());
         level = 0;
     }
-    updateChanCheckLevel(address, grouping, level);
+    updateChanCheckLevel(ui->lcdNumber->intValue(), ui->sbGrouping->value(), level);
 }
 
 void transmitwindow::on_tabWidget_currentChanged(int index)
