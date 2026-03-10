@@ -587,7 +587,7 @@ void transmitwindow::on_btnCcBlink_pressed()
     {
         m_blinkTimer->stop();
         ui->blinkIndicator->setPixmap(QPixmap());
-        updateChanCheckLevel(ui->lcdNumber->intValue(), ui->sbGrouping->value(), ui->slChannelCheck->value());
+        updateChanCheckLevel(ui->lcdNumber->intValue() - 1, ui->sbGrouping->value(), ui->slChannelCheck->value());
     }
     else
     {
@@ -619,7 +619,7 @@ void transmitwindow::doBlink()
         ui->blinkIndicator->setPixmap(QPixmap());
         level = 0;
     }
-    updateChanCheckLevel(ui->lcdNumber->intValue(), ui->sbGrouping->value(), level);
+    updateChanCheckLevel(ui->lcdNumber->intValue() - 1, ui->sbGrouping->value(), level);
 }
 
 void transmitwindow::on_tabWidget_currentChanged(int index)
