@@ -561,7 +561,7 @@ void transmitwindow::on_cbCcPap_toggled(bool checked)
 
 void transmitwindow::on_lcdNumber_valueChanged(int value)
 {
-    updateChanCheckLevel(value, ui->sbGrouping->value(), ui->slChannelCheck->value());
+    updateChanCheckLevel(value - 1, ui->sbGrouping->value(), ui->slChannelCheck->value());
 }
 
 void transmitwindow::on_lcdNumber_toggleOff()
@@ -606,7 +606,7 @@ void transmitwindow::on_btnCcBlink_pressed()
 
 void transmitwindow::on_sbGrouping_valueChanged(int value)
 {
-    updateChanCheckLevel(ui->lcdNumber->intValue(), value, ui->slChannelCheck->value());
+    updateChanCheckLevel(ui->lcdNumber->intValue() - 1, value, ui->slChannelCheck->value());
 }
 
 void transmitwindow::doBlink()
@@ -641,9 +641,11 @@ void transmitwindow::on_tabWidget_currentChanged(int index)
     {
         case tabChannelCheck:
         {
-            auto address = ui->lcdNumber->value() - 1;
-            m_sender->setLevel(address, ui->slChannelCheck->value());
-            updateChanCheckPap(address, ui->sbGrouping->value());
+            const auto address = ui->lcdNumber->intValue() - 1;
+            const auto grouping = ui->sbGrouping->value();
+            const auto value = ui->slChannelCheck->value();
+            updateChanCheckLevel(address, grouping, value);
+            updateChanCheckPap(address, grouping);
 
             ui->lcdNumber->setFocus();
             break;
@@ -1006,13 +1008,13 @@ void transmitwindow::updateChanCheckLevel(int address, int length, quint8 value)
     if (m_sender)
     {
         // Update levels.
-        const uint16_t endAddress = address - 1 + length;
+        const uint16_t endAddress = address + length;
 
         m_sender->setLevelRange(0, m_slotCount - 1, 0);
-        m_sender->setLevelRange(address - 1, std::min(MAX_DMX_ADDRESS, endAddress) - 1, value);
+        m_sender->setLevelRange(address, std::min(MAX_DMX_ADDRESS, endAddress) - 1, value);
 
         // Update priorities if requested.
-        updateChanCheckPap(address - 1, length);
+        updateChanCheckPap(address, length);
     }
 }
 
