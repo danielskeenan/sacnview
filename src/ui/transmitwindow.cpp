@@ -54,7 +54,7 @@ transmitwindow::transmitwindow(int universe, QWidget * parent)
     m_slotCount = MAX_DMX_ADDRESS;
     ui->sbSlotCount->setValue(m_slotCount);
     ui->sbSlotCount->setWrapping(true);
-        
+
     ui->sbFadeRangeEnd->setMinimum(MIN_DMX_ADDRESS);
     ui->sbFadeRangeEnd->setMaximum(m_slotCount);
     ui->sbFadeRangeEnd->setValue(m_slotCount);
@@ -561,21 +561,7 @@ void transmitwindow::on_cbCcPap_toggled(bool checked)
 
 void transmitwindow::on_lcdNumber_valueChanged(int value)
 {
-    if (m_sender)
-    {
-        // Update levels.
-        const auto grouping = ui->sbGrouping->value();
-        const uint16_t maxAddress = value - 1 + grouping;
-
-        m_sender->setLevelRange(0, m_slotCount - 1, 0);
-        for (auto channel = value - 1; channel < std::min(MAX_DMX_ADDRESS, maxAddress); channel++)
-        {
-            m_sender->setLevel(channel, ui->slChannelCheck->value());
-        }
-
-        // Update priorities if requested.
-        updateChanCheckPap(value - 1, grouping);
-    }
+    updateChanCheckLevel(value, ui->sbGrouping->value(), ui->slChannelCheck->value());
 }
 
 void transmitwindow::on_lcdNumber_toggleOff()
@@ -622,18 +608,21 @@ void transmitwindow::on_btnCcBlink_pressed()
 void transmitwindow::doBlink()
 {
     int address = ui->lcdNumber->value();
+    const auto grouping = ui->sbGrouping->value();
     m_blink = !m_blink;
 
+    quint8 level;
     if (m_blink)
     {
         ui->blinkIndicator->setPixmap(QPixmap(":/icons/record.png"));
-        if (m_sender) m_sender->setLevel(address - 1, ui->slChannelCheck->value());
+        level = ui->slChannelCheck->value();
     }
     else
     {
         ui->blinkIndicator->setPixmap(QPixmap());
-        if (m_sender) m_sender->setLevel(address - 1, 0);
+        level = 0;
     }
+    updateChanCheckLevel(address, grouping, level);
 }
 
 void transmitwindow::on_tabWidget_currentChanged(int index)
@@ -1003,11 +992,26 @@ void transmitwindow::updateChanCheckPap(int address, int length)
     }
 
     std::array<quint8, MAX_DMX_ADDRESS> ccPap{0};
-    for (int i = address; i < std::min(address+length, DMX_SLOT_MAX); i++)
+    for (int i = address; i < std::min(address + length, DMX_SLOT_MAX); i++)
     {
         ccPap[i] = m_perAddressPriorities[i];
     }
     m_sender->setPerChannelPriorities(ccPap.data());
+}
+
+void transmitwindow::updateChanCheckLevel(int address, int length, quint8 value)
+{
+    if (m_sender)
+    {
+        // Update levels.
+        const uint16_t endAddress = address - 1 + length;
+
+        m_sender->setLevelRange(0, m_slotCount - 1, 0);
+        m_sender->setLevelRange(address - 1, std::min(MAX_DMX_ADDRESS, endAddress) - 1, value);
+
+        // Update priorities if requested.
+        updateChanCheckPap(address - 1, length);
+    }
 }
 
 void transmitwindow::updateFadeRangePap()

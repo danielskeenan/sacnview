@@ -106,6 +106,7 @@ private:
     void setLevel(int address, int value);
     void updatePerChanPriorityButton();
     void updateChanCheckPap(int address, int length);
+    void updateChanCheckLevel(int address, int length, quint8 value);
     void updateFadeRangePap();
     Ui::transmitwindow * ui = nullptr;
     ConfigurePerChanPrioDlg * m_perChannelDialog = nullptr;
