@@ -578,12 +578,7 @@ void transmitwindow::on_lcdNumber_toggleOff()
 
 void transmitwindow::on_slChannelCheck_valueChanged(int value)
 {
-    int address = ui->lcdNumber->value();
-
-    if (m_sender)
-    {
-        m_sender->setLevel(address - 1, value);
-    }
+    updateChanCheckLevel(ui->lcdNumber->intValue() - 1, ui->sbGrouping->value(), value);
 }
 
 void transmitwindow::on_btnCcBlink_pressed()
