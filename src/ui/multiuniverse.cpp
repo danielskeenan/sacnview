@@ -21,6 +21,7 @@
 #include "preferences.h"
 #include "sacneffectengine.h"
 #include <QCheckBox>
+#include <QCloseEvent>
 #include <QComboBox>
 #include <QLabel>
 #include <QMutableListIterator>
@@ -175,6 +176,15 @@ void MultiUniverse::addSource(
 
     QTableWidgetItem * item = new QTableWidgetItem(sender->name());
     ui->tableWidget->setItem(row, COL_NAME, item);
+}
+
+void MultiUniverse::closeEvent(QCloseEvent * event)
+{
+    QWidget::closeEvent(event);
+    if (event->isAccepted())
+    {
+        ui->tableWidget->clear();
+    }
 }
 
 void MultiUniverse::on_btnAddRow_pressed()

@@ -36,6 +36,11 @@ public:
 
     explicit MultiUniverse(int firstUniverse = MIN_SACN_UNIVERSE, QWidget * parent = 0);
     ~MultiUniverse();
+
+protected:
+
+    void closeEvent(QCloseEvent * event) override;
+
 private slots:
     void on_btnAddRow_pressed();
     void on_btnRemoveRow_pressed();
