@@ -16,9 +16,11 @@
 #include "preferences.h"
 #include "consts.h"
 #include <QApplication>
+#include <QDir>
 #include <QPalette>
 #include <QRandomGenerator>
 #include <QSettings>
+#include <QStandardPaths>
 #include <QStyle>
 #include <Qt>
 #include <cmath>
@@ -102,6 +104,9 @@ static const QString S_PATHWAYSECURE_SEQUENCE_MAP = QStringLiteral("PathwaySecur
 // Keyboard Shortcuts
 static const QString S_KEYBOARD_SHORTCUTS = QStringLiteral("KeyboardShortcuts");
 static const QString S_KEYBOARD_SHORTCUT = QStringLiteral("KeyboardShortcuts/%1");
+
+// File Pickers
+static const QString S_SNAPSHOT_DIRECTORY = QStringLiteral("Directories/Snapshot");
 
 // The base color to generate pastel shades for sources
 static const QColor mixColor(QColorConstants::Svg::coral);
@@ -415,6 +420,8 @@ void Preferences::savePreferences() const
     settings.setValue(S_SAVEWINDOWLAYOUT, m_autosaveWindowLayout);
     settings.setValue(S_RESTOREWINDOWLAYOUT, m_restoreWindowLayout);
 
+    settings.setValue(S_SNAPSHOT_DIRECTORY, m_lastSnapshotDirectory);
+
     saveWindowGeometrySettings();
 
     for (int i = 0; i < PRESET_COUNT; i++)
@@ -518,6 +525,7 @@ void Preferences::loadPreferences()
     m_pathwaySecureRxSequenceTimeWindow =
         settings.value(S_PATHWAYSECURE_RX_SEQUENCE_TIME_WINDOW, m_pathwaySecureRxSequenceTimeWindow).toUInt();
     m_pathwaySecureSequenceMap = settings.value(S_PATHWAYSECURE_SEQUENCE_MAP, m_pathwaySecureSequenceMap).toByteArray();
+    m_lastSnapshotDirectory = settings.value(S_SNAPSHOT_DIRECTORY, m_lastSnapshotDirectory).toString();
 
     loadWindowGeometrySettings();
 
@@ -641,4 +649,13 @@ QString Preferences::getKeyShortcutDescription(KeyShortcutTarget target) const
 void Preferences::setKeyShortcut(KeyShortcutTarget target, const QKeyCombination & keys)
 {
     m_shortcutMap[target] = keys;
+}
+
+QString Preferences::GetLastSnapshotDirectory() const
+{
+    if (m_lastSnapshotDirectory.isEmpty())
+    {
+        return QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+    }
+    return m_lastSnapshotDirectory;
 }

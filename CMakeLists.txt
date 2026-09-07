@@ -102,6 +102,8 @@ set(SACNVIEW_HEADERS
     src/models/sacnlistenermodel.h
     src/delegates/resettablecounterdelegate.h
     src/color_helpers.h
+    src/deletelater.h
+    src/jsonfile.h
 )
 
 set(SACNVIEW_SOURCES
@@ -110,6 +112,7 @@ set(SACNVIEW_SOURCES
     src/commandline.cpp
     src/firewallcheck.cpp
     src/ipc.cpp
+    src/jsonfile.cpp
     src/preferences.cpp
     src/models/sacnsynclistmodel.cpp
     src/models/sacndiscoveredsourcelistmodel.cpp
