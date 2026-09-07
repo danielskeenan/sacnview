@@ -66,6 +66,9 @@ protected slots:
     void senderStopped();
     void senderStarted();
     void updateMatchIcon();
+    void on_btnNew_clicked();
+    void on_btnOpen_clicked();
+    void on_btnSaveAs_clicked();
 
 protected:
 
