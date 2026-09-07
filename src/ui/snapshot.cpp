@@ -1,9 +1,15 @@
 #include "snapshot.h"
 #include "consts.h"
+#include "deletelater.h"
 #include "preferences.h"
 #include "ui_snapshot.h"
+
+#include <QFileDialog>
 #include <QInputDialog>
+#include <QJsonArray>
+#include <QJsonDocument>
 #include <QMessageBox>
+#include <QSaveFile>
 #include <QSoundEffect>
 #include <QSpinBox>
 #include <QTimer>
@@ -195,6 +201,29 @@ void Snapshot::on_btnRemoveRow_clicked()
     setState(stSetup);
 }
 
+QString Snapshot::filenameFilter()
+{
+    // Can't be a static const var in order for translator to work.
+    return tr("sACNView Snapshot (*.sacnsnap)");
+}
+
+void Snapshot::clear()
+{
+    // Remove snapshots (this will also stop transmission).
+    for (auto & snap : m_snapshots)
+    {
+        snap->deleteLater();
+    }
+    m_snapshots.clear();
+
+    // Clear table.
+    // Can't use clear() (resets header) or clearContents() (empties each cell but keeps it present as garbage).
+    while (ui->tableWidget->rowCount() > 0)
+    {
+        ui->tableWidget->removeRow(ui->tableWidget->rowCount() - 1);
+    }
+}
+
 void Snapshot::addUniverse(quint16 universe)
 {
     if (universe < MIN_SACN_UNIVERSE || universe > MAX_SACN_UNIVERSE) return;
@@ -206,11 +235,15 @@ void Snapshot::addUniverse(quint16 universe)
     }
 
     // Add new snapshot item
-    int row = ui->tableWidget->rowCount();
-    ui->tableWidget->setRowCount(row + 1);
-
     QString name = Preferences::Instance().GetDefaultTransmitName() + tr(" - Snapshot");
     clsSnapshot * snap = new clsSnapshot(universe, m_cid, name, this);
+    addUniverse(snap);
+}
+
+void Snapshot::addUniverse(clsSnapshot * snap)
+{
+    int row = ui->tableWidget->rowCount();
+    ui->tableWidget->setRowCount(row + 1);
 
     connect(snap, &clsSnapshot::senderStarted, this, &Snapshot::senderStarted);
     connect(snap, &clsSnapshot::senderStopped, this, &Snapshot::senderStopped);
@@ -327,28 +360,143 @@ void Snapshot::on_btnPlay_pressed()
 
 void Snapshot::on_btnNew_clicked()
 {
-    // Remove snapshots (this will also stop transmission).
-    for (auto & snap : m_snapshots)
-    {
-        snap->deleteLater();
-    }
-    m_snapshots.clear();
-
-    // Clear table.
-    // Can't use clear() (resets header) or clearContents() (empties each cell but keeps it present as garbage).
-    while (ui->tableWidget->rowCount() > 0)
-    {
-        ui->tableWidget->removeRow(ui->tableWidget->rowCount() - 1);
-    }
+    clear();
 
     // Setup UI as if window was just opened.
-    ui->btnSnapshot->setEnabled(ui->tableWidget->rowCount() > 0);
     setState(stSetup);
+    setWindowFilePath({});
+    setWindowModified(false);
 }
 
-void Snapshot::on_btnOpen_clicked() {}
+void Snapshot::on_btnOpen_clicked()
+{
+    // Get open path.
+    auto preferences = Preferences::Instance();
+    QFileDialog dialog(this);
+    dialog.setAcceptMode(QFileDialog::AcceptOpen);
+    dialog.setFileMode(QFileDialog::ExistingFile);
+    dialog.setNameFilter(filenameFilter());
+    if (!windowFilePath().isEmpty() && QFile::exists(windowFilePath()))
+    {
+        dialog.selectFile(windowFilePath());
+    }
+    else
+    {
+        dialog.setDirectory(preferences.GetLastSnapshotDirectory());
+    }
+    if (dialog.exec() != QFileDialog::Accepted)
+    {
+        return;
+    }
 
-void Snapshot::on_btnSaveAs_clicked() {}
+    // Open from file.
+    const auto path = dialog.selectedFiles().front();
+    QFile file(path);
+    if (!file.open(QFile::ReadOnly))
+    {
+        QMessageBox::critical(this, tr("Error opening file"), tr("The file cannot be read."));
+        return;
+    }
+    const auto data = file.readAll();
+    QJsonParseError err;
+    const auto doc = QJsonDocument::fromJson(data, &err);
+    if (err.error != QJsonParseError::NoError)
+    {
+        QMessageBox msgBox(
+            QMessageBox::Critical,
+            tr("Error opening file"),
+            tr("An error occurred reading the file."),
+            QMessageBox::Ok,
+            this);
+        msgBox.setDetailedText(err.errorString());
+        msgBox.exec();
+        return;
+    }
+    QMessageBox validationFailMsgBox(
+        QMessageBox::Critical,
+        tr("Error opening file"),
+        tr("The file is invalid"),
+        QMessageBox::Ok,
+        this);
+    if (!doc.isArray())
+    {
+        validationFailMsgBox.exec();
+        return;
+    }
+    std::vector<std::unique_ptr<clsSnapshot, DeleteLater<clsSnapshot>>> newSnaps;
+    bool replayable = !doc.array().empty();
+    for (const auto & snapJson : doc.array())
+    {
+        if (!snapJson.isObject())
+        {
+            validationFailMsgBox.exec();
+            return;
+        }
+        auto & snap = newSnaps.emplace_back(clsSnapshot::fromJson(snapJson.toObject(), this));
+        if (snap == nullptr)
+        {
+            validationFailMsgBox.exec();
+            return;
+        }
+        replayable &= snap->hasData();
+    }
+    clear();
+    for (auto & newSnap : newSnaps)
+    {
+        addUniverse(newSnap.release());
+    }
+
+    preferences.SetLastSnapshotDirectory(QFileInfo(path).absoluteDir().path());
+    setState(replayable ? stReplay : stSetup);
+    setWindowFilePath(path);
+    setWindowModified(false);
+}
+
+void Snapshot::on_btnSaveAs_clicked()
+{
+    // Get save path.
+    auto preferences = Preferences::Instance();
+    QFileDialog dialog(this);
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    dialog.setFileMode(QFileDialog::AnyFile);
+    dialog.setNameFilter(filenameFilter());
+    if (!windowFilePath().isEmpty() && QFile::exists(windowFilePath()))
+    {
+        dialog.selectFile(windowFilePath());
+    }
+    else
+    {
+        dialog.setDirectory(preferences.GetLastSnapshotDirectory());
+    }
+    if (dialog.exec() != QFileDialog::Accepted)
+    {
+        return;
+    }
+
+    // Save to file.
+    const auto path = dialog.selectedFiles().front();
+    QSaveFile file(path);
+    if (!file.open(QSaveFile::WriteOnly))
+    {
+        QMessageBox::critical(this, tr("Error saving file"), tr("The file cannot be written."));
+        return;
+    }
+    QJsonArray arr;
+    for (const auto & snap : m_snapshots)
+    {
+        arr.append(snap->toJson());
+    }
+    file.write(QJsonDocument(arr).toJson());
+    if (!file.commit())
+    {
+        QMessageBox::critical(this, tr("Error saving file"), tr("An error occurred while writing the file."));
+        return;
+    }
+
+    preferences.SetLastSnapshotDirectory(QFileInfo(path).absoluteDir().path());
+    setWindowFilePath(path);
+    setWindowModified(false);
+}
 
 void Snapshot::saveSnapshot()
 {

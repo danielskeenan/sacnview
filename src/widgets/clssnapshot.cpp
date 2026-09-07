@@ -1,9 +1,17 @@
 #include "clssnapshot.h"
 
+#include "jsonfile.h"
 #include "preferences.h"
 
 #include <QHBoxLayout>
+#include <QJsonArray>
 #include <QPainter>
+
+static const auto JSON_KEY_UNIVERSE = QStringLiteral("universe");
+static const auto JSON_KEY_CID = QStringLiteral("cid");
+static const auto JSON_KEY_NAME = QStringLiteral("name");
+static const auto JSON_KEY_PRIORITY = QStringLiteral("priority");
+static const auto JSON_KEY_VALUES = QStringLiteral("values");
 
 clsSnapshot::clsSnapshot(quint16 universe, CID cid, QString name, QWidget * parent)
     : QWidget(parent)
@@ -167,6 +175,115 @@ void clsSnapshot::stopSnapshot()
     m_sender->stopSending();
     updateIcons();
     emit senderStopped();
+}
+
+QJsonObject clsSnapshot::toJson() const
+{
+    QJsonObject o{
+        {JSON_KEY_UNIVERSE, m_universe},
+        {JSON_KEY_CID, CID::CIDIntoQString(m_cid)},
+        {JSON_KEY_NAME, m_sender->name()},
+        {JSON_KEY_PRIORITY, m_priority},
+        {JSON_KEY_VALUES,
+         [this]()
+         {
+             QJsonArray arr;
+             for (const auto & v : m_levelData)
+             {
+                 arr.append(static_cast<uint8_t>(v));
+             }
+             return arr;
+         }()}};
+    return o;
+}
+
+clsSnapshot * clsSnapshot::fromJson(const QJsonObject & o, QWidget * parent)
+{
+    // Universe
+    if (!isKeyPresentAndCorrect(o, JSON_KEY_UNIVERSE, QJsonValue::Double))
+    {
+        return nullptr;
+    }
+    const auto universe = o[JSON_KEY_UNIVERSE].toInt();
+    if (universe < MIN_SACN_UNIVERSE || universe > MAX_SACN_UNIVERSE)
+    {
+        qWarning() << "Universe out of range:" << universe;
+        return nullptr;
+    }
+
+    // CID
+    if (!isKeyPresentAndCorrect(o, JSON_KEY_CID, QJsonValue::String))
+    {
+        return nullptr;
+    }
+    const auto cidStr = o[JSON_KEY_CID].toString();
+    const auto cid = CID::StringToCID(cidStr.toLatin1().data());
+    if (cid.isNull())
+    {
+        qWarning() << "Invalid CID";
+        return nullptr;
+    }
+
+    // Name
+    if (!isKeyPresentAndCorrect(o, JSON_KEY_NAME, QJsonValue::String))
+    {
+        return nullptr;
+    }
+    const auto name = o[JSON_KEY_NAME].toString();
+    if (name.size() > MAX_SOURCE_NAME_LEN)
+    {
+        qWarning() << "Source name too long";
+        return nullptr;
+    }
+
+    // Priority
+    if (!isKeyPresentAndCorrect(o, JSON_KEY_PRIORITY, QJsonValue::Double))
+    {
+        return nullptr;
+    }
+    const auto priority = o[JSON_KEY_PRIORITY].toInt();
+    if (priority < MIN_SACN_PRIORITY || priority > MAX_SACN_PRIORITY)
+    {
+        qWarning() << "Priority out of range:" << priority;
+        return nullptr;
+    }
+
+    // Values
+    if (!isKeyPresentAndCorrect(o, JSON_KEY_VALUES, QJsonValue::Array))
+    {
+        return nullptr;
+    }
+    const auto & jsonValues = o[JSON_KEY_VALUES].toArray();
+    // An empty array is allowed; it means this universe should be in the list but has not yet been snapshotted.
+    if (jsonValues.size() > MAX_DMX_ADDRESS)
+    {
+        qWarning() << "Value array too big:" << jsonValues.size();
+        return nullptr;
+    }
+    QByteArray values;
+    for (const auto & jsonValue : jsonValues)
+    {
+        if (!jsonValue.isDouble())
+        {
+            qWarning() << "Value array member is wrong type:" << jsonValue.type();
+            return nullptr;
+        }
+        const auto value = jsonValue.toInt();
+        if (value < MIN_SACN_LEVEL || value > MAX_SACN_LEVEL)
+        {
+            qWarning() << "Value array member is out of range:" << value;
+            return nullptr;
+        }
+        values.append(static_cast<char>(value));
+    }
+
+    // At this point all data has been extracted and validated. Create the snapshot.
+    auto snapshot = new clsSnapshot(universe, cid, name, parent);
+    snapshot->setPriority(priority);
+    snapshot->m_levelData = values;
+    snapshot->updateIcons();
+
+    return snapshot;
 }
 
 void clsSnapshot::btnEnableClicked(bool value)

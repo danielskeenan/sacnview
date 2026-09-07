@@ -233,6 +233,9 @@ public:
     QString getKeyShortcutDescription(KeyShortcutTarget target) const;
     void setKeyShortcut(KeyShortcutTarget target, const QKeyCombination & keys);
 
+    void SetLastSnapshotDirectory(const QString & path) { m_lastSnapshotDirectory = path; }
+    QString GetLastSnapshotDirectory() const;
+
 private:
 
     QString m_settings_file; // Overridden settings filepath
@@ -288,6 +291,8 @@ private:
     bool m_autoStartRx = false;
 
     bool m_restartPending = false;
+
+    QString m_lastSnapshotDirectory;
 
     QSettings getSettings() const;
     void loadPreferences();

@@ -4,6 +4,7 @@
 #include "sacnlistener.h"
 #include "sacnsender.h"
 #include "streamingacn.h"
+#include <QJsonObject>
 #include <QLabel>
 #include <QMap>
 #include <QObject>
@@ -17,11 +18,19 @@ class clsSnapshot : public QWidget
 public:
 
     explicit clsSnapshot(quint16 universe, CID cid, QString name, QWidget * parent = nullptr);
+    /**
+     * Load a snapshot from JSON object.
+     *
+     * @param o
+     * @return The initialized snapshot, or nullptr if the JSON object is invalid.
+     */
+    static clsSnapshot * fromJson(const QJsonObject & o, QWidget * parent = nullptr);
     ~clsSnapshot();
 
     void takeSnapshot();
     void playSnapshot();
     void stopSnapshot();
+    [[nodiscard]] QJsonObject toJson() const;
 
     bool hasData() { return !m_levelData.isEmpty(); }
 
@@ -104,6 +113,11 @@ private:
     QSoundEffect * m_camera;
 
     bool m_backgroundMatches;
+};
+
+struct clsSnapshotDeleter
+{
+    void operator()(clsSnapshot * ptr) { ptr->deleteLater(); }
 };
 
 #endif // CLSSNAPSHOT_H

@@ -87,7 +87,11 @@ private:
         COLCOUNT
     };
 
+    static QString filenameFilter();
+
+    void clear();
     void addUniverse(quint16 universe);
+    void addUniverse(clsSnapshot* snap);
 
     void setState(state s);
     void setState(int s) { setState(static_cast<state>(s)); }
