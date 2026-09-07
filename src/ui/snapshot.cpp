@@ -325,6 +325,31 @@ void Snapshot::on_btnPlay_pressed()
     }
 }
 
+void Snapshot::on_btnNew_clicked()
+{
+    // Remove snapshots (this will also stop transmission).
+    for (auto & snap : m_snapshots)
+    {
+        snap->deleteLater();
+    }
+    m_snapshots.clear();
+
+    // Clear table.
+    // Can't use clear() (resets header) or clearContents() (empties each cell but keeps it present as garbage).
+    while (ui->tableWidget->rowCount() > 0)
+    {
+        ui->tableWidget->removeRow(ui->tableWidget->rowCount() - 1);
+    }
+
+    // Setup UI as if window was just opened.
+    ui->btnSnapshot->setEnabled(ui->tableWidget->rowCount() > 0);
+    setState(stSetup);
+}
+
+void Snapshot::on_btnOpen_clicked() {}
+
+void Snapshot::on_btnSaveAs_clicked() {}
+
 void Snapshot::saveSnapshot()
 {
     for (const auto snap : std::as_const(m_snapshots)) snap->takeSnapshot();
