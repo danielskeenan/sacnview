@@ -432,7 +432,7 @@ void Snapshot::on_btnOpen_clicked()
             validationFailMsgBox.exec();
             return;
         }
-        auto & snap = newSnaps.emplace_back(clsSnapshot::fromJson(snapJson.toObject(), this));
+        auto & snap = newSnaps.emplace_back(clsSnapshot::fromJson(snapJson.toObject(), m_cid, this));
         if (snap == nullptr)
         {
             validationFailMsgBox.exec();

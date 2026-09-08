@@ -8,7 +8,6 @@
 #include <QPainter>
 
 static const auto JSON_KEY_UNIVERSE = QStringLiteral("universe");
-static const auto JSON_KEY_CID = QStringLiteral("cid");
 static const auto JSON_KEY_NAME = QStringLiteral("name");
 static const auto JSON_KEY_PRIORITY = QStringLiteral("priority");
 static const auto JSON_KEY_VALUES = QStringLiteral("values");
@@ -181,7 +180,6 @@ QJsonObject clsSnapshot::toJson() const
 {
     QJsonObject o{
         {JSON_KEY_UNIVERSE, m_universe},
-        {JSON_KEY_CID, CID::CIDIntoQString(m_cid)},
         {JSON_KEY_NAME, m_sender->name()},
         {JSON_KEY_PRIORITY, m_priority},
         {JSON_KEY_VALUES,
@@ -197,7 +195,7 @@ QJsonObject clsSnapshot::toJson() const
     return o;
 }
 
-clsSnapshot * clsSnapshot::fromJson(const QJsonObject & o, QWidget * parent)
+clsSnapshot * clsSnapshot::fromJson(const QJsonObject & o, const CID & cid, QWidget * parent)
 {
     // Universe
     if (!isKeyPresentAndCorrect(o, JSON_KEY_UNIVERSE, QJsonValue::Double))
@@ -208,19 +206,6 @@ clsSnapshot * clsSnapshot::fromJson(const QJsonObject & o, QWidget * parent)
     if (universe < MIN_SACN_UNIVERSE || universe > MAX_SACN_UNIVERSE)
     {
         qWarning() << "Universe out of range:" << universe;
-        return nullptr;
-    }
-
-    // CID
-    if (!isKeyPresentAndCorrect(o, JSON_KEY_CID, QJsonValue::String))
-    {
-        return nullptr;
-    }
-    const auto cidStr = o[JSON_KEY_CID].toString();
-    const auto cid = CID::StringToCID(cidStr.toLatin1().data());
-    if (cid.isNull())
-    {
-        qWarning() << "Invalid CID";
         return nullptr;
     }
 
