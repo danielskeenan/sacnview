@@ -424,6 +424,8 @@ void Snapshot::on_btnOpen_clicked()
         return;
     }
     std::vector<std::unique_ptr<clsSnapshot, DeleteLater<clsSnapshot>>> newSnaps;
+    // Only allow playback if *all* universes have data contained within. Otherwise, only allow capturing a snapshot.
+    // This reflects what would happen if universes were added manually.
     bool replayable = !doc.array().empty();
     for (const auto & snapJson : doc.array())
     {
@@ -486,7 +488,7 @@ void Snapshot::on_btnSaveAs_clicked()
     {
         arr.append(snap->toJson());
     }
-    file.write(QJsonDocument(arr).toJson());
+    file.write(QJsonDocument(arr).toJson(QJsonDocument::Compact));
     if (!file.commit())
     {
         QMessageBox::critical(this, tr("Error saving file"), tr("An error occurred while writing the file."));
