@@ -22,9 +22,10 @@ public:
      * Load a snapshot from JSON object.
      *
      * @param o
+     * @param cid
      * @return The initialized snapshot, or nullptr if the JSON object is invalid.
      */
-    static clsSnapshot * fromJson(const QJsonObject & o, QWidget * parent = nullptr);
+    static clsSnapshot * fromJson(const QJsonObject & o, const CID & cid, QWidget * parent = nullptr);
     ~clsSnapshot();
 
     void takeSnapshot();
