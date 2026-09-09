@@ -197,6 +197,8 @@ QJsonObject clsSnapshot::toJson() const
 
 clsSnapshot * clsSnapshot::fromJson(const QJsonObject & o, const CID & cid, QWidget * parent)
 {
+    // Keep this validation logic in sync with the JSON schema in res/sacnsnap.schema.json
+
     // Universe
     if (!isKeyPresentAndCorrect(o, JSON_KEY_UNIVERSE, QJsonValue::Double))
     {
