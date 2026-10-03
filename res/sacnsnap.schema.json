@@ -8,10 +8,6 @@
     "title": "Universe entry",
     "type": "object",
     "properties": {
-      "name": {
-        "type": "string",
-        "maxLength": 63
-      },
       "priority": {
         "type": "integer",
         "minimum": 0,
@@ -32,6 +28,6 @@
         }
       }
     },
-    "required": ["name", "priority", "universe", "values"]
+    "required": ["priority", "universe", "values"]
   }
 }

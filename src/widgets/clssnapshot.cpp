@@ -8,7 +8,6 @@
 #include <QPainter>
 
 static const auto JSON_KEY_UNIVERSE = QStringLiteral("universe");
-static const auto JSON_KEY_NAME = QStringLiteral("name");
 static const auto JSON_KEY_PRIORITY = QStringLiteral("priority");
 static const auto JSON_KEY_VALUES = QStringLiteral("values");
 
@@ -180,7 +179,6 @@ QJsonObject clsSnapshot::toJson() const
 {
     QJsonObject o{
         {JSON_KEY_UNIVERSE, m_universe},
-        {JSON_KEY_NAME, m_sender->name()},
         {JSON_KEY_PRIORITY, m_priority},
         {JSON_KEY_VALUES,
          [this]()
@@ -208,18 +206,6 @@ clsSnapshot * clsSnapshot::fromJson(const QJsonObject & o, const CID & cid, QWid
     if (universe < MIN_SACN_UNIVERSE || universe > MAX_SACN_UNIVERSE)
     {
         qWarning() << "Universe out of range:" << universe;
-        return nullptr;
-    }
-
-    // Name
-    if (!isKeyPresentAndCorrect(o, JSON_KEY_NAME, QJsonValue::String))
-    {
-        return nullptr;
-    }
-    const auto name = o[JSON_KEY_NAME].toString();
-    if (name.size() > MAX_SOURCE_NAME_LEN)
-    {
-        qWarning() << "Source name too long";
         return nullptr;
     }
 
